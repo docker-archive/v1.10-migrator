@@ -19,10 +19,10 @@ type checksumCalculator interface {
 	ChecksumForGraphID(id, parent, oldTarDataPath, newTarDataPath string) (diffID layer.DiffID, size int64, err error)
 }
 
-type checksumCalculatorFunc func() checksumCalculator
+type mounterFunc func(string) Mounter
 
-var drivers = map[string]checksumCalculatorFunc{
-	"aufs":         nil,
+var drivers = map[string]mounterFunc{
+	"aufs":         NewAufsChecksums,
 	"overlay":      nil,
 	"devicemapper": nil,
 }
@@ -32,13 +32,14 @@ func main() {
 	driver := flag.String("s", autoDriver, "Storage driver to migrate")
 
 	flag.Parse()
+	logrus.SetLevel(logrus.DebugLevel)
 
 	driverName, err := validateGraphDir(*root, *driver)
 	if err != nil {
 		logrus.Fatal(err)
 	}
-
-	migrate.CalculateLayerChecksums(*root, drivers[driverName](), make(map[string]image.ID))
+	mounter := drivers[driverName](filepath.Join(*root, driverName))
+	migrate.CalculateLayerChecksums(*root, &checksums{mounter}, make(map[string]image.ID))
 
 }
 
@@ -47,7 +48,6 @@ func validateGraphDir(root, driver string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	if driver == autoDriver {
 		driver, err = findDriver(root)
 		if err != nil {
