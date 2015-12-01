@@ -23,7 +23,7 @@ type mounterFunc func(string) Mounter
 
 var drivers = map[string]mounterFunc{
 	"aufs":         NewAufsChecksums,
-	"overlay":      nil,
+	"overlay":      NewOverlayChecksums,
 	"devicemapper": nil,
 }
 

@@ -25,7 +25,7 @@ type checksums struct {
 func (c *checksums) ChecksumForGraphID(id, parent, oldTarDataPath, newTarDataPath string) (diffID layer.DiffID, size int64, err error) {
 	defer func() {
 		if err != nil {
-			logrus.Debugf("could not get checksum for %q with tar-split: %q", id, err)
+			logrus.Debugf("could not get checksum for %q with tar-split: %q. Attempting fallback.", id, err)
 			diffID, size, err = c.checksumForGraphIDNoTarsplit(id, parent, newTarDataPath)
 		}
 	}()
