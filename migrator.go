@@ -8,23 +8,18 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/docker/image"
-	"github.com/docker/docker/layer"
 
 	migrate "github.com/docker/docker/migrate/v1"
 )
 
 const autoDriver = "auto"
 
-type checksumCalculator interface {
-	ChecksumForGraphID(id, parent, oldTarDataPath, newTarDataPath string) (diffID layer.DiffID, size int64, err error)
-}
-
 type mounterFunc func(string) Mounter
 
 var drivers = map[string]mounterFunc{
 	"aufs":         NewAufsChecksums,
 	"overlay":      NewOverlayChecksums,
-	"devicemapper": nil,
+	"devicemapper": NewDevicemapperChecksums,
 }
 
 func main() {
