@@ -19,6 +19,7 @@ type mounterFunc func(string) Mounter
 var drivers = map[string]mounterFunc{
 	"aufs":         NewAufsChecksums,
 	"overlay":      NewOverlayChecksums,
+	"btrfs":        NewBtrfsChecksums,
 	"devicemapper": NewDevicemapperChecksums,
 }
 
