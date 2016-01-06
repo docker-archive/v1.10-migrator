@@ -123,7 +123,7 @@ func Init(root string, options []string, uidMaps, gidMaps []idtools.IDMap) (grap
 	// Create the root aufs driver dir and return
 	// if it already exists
 	// If not populate the dir structure
-	if err := idtools.MkdirAllAs(root, 0755, rootUID, rootGID); err != nil {
+	if err := idtools.MkdirAllAs(root, 0700, rootUID, rootGID); err != nil {
 		if os.IsExist(err) {
 			return a, nil
 		}
@@ -136,7 +136,7 @@ func Init(root string, options []string, uidMaps, gidMaps []idtools.IDMap) (grap
 
 	// Populate the dir structure
 	for _, p := range paths {
-		if err := idtools.MkdirAllAs(path.Join(root, p), 0755, rootUID, rootGID); err != nil {
+		if err := idtools.MkdirAllAs(path.Join(root, p), 0700, rootUID, rootGID); err != nil {
 			return nil, err
 		}
 	}
@@ -332,6 +332,14 @@ func (a *Driver) Put(id string) error {
 
 	m := a.active[id]
 	if m == nil {
+		// but it might be still here
+		if a.Exists(id) {
+			path := path.Join(a.rootPath(), "mnt", id)
+			err := Unmount(path)
+			if err != nil {
+				logrus.Debugf("Failed to unmount %s aufs: %v", id, err)
+			}
+		}
 		return nil
 	}
 	if count := m.referenceCount; count > 1 {
@@ -358,6 +366,9 @@ func (a *Driver) Diff(id, parent string) (archive.Archive, error) {
 		GIDMaps:         a.gidMaps,
 	})
 }
+
+// DiffPath returns path to the directory that contains files for the layer
+// differences. Used for direct access for tar-split.
 func (a *Driver) DiffPath(id string) (string, func() error, error) {
 	return path.Join(a.rootPath(), "diff", id), func() error { return nil }, nil
 }

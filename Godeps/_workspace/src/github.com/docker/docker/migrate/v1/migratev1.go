@@ -15,12 +15,11 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/distribution/digest"
-	"github.com/docker/distribution/reference"
 	"github.com/docker/docker/distribution/metadata"
 	"github.com/docker/docker/image"
 	imagev1 "github.com/docker/docker/image/v1"
 	"github.com/docker/docker/layer"
-	"github.com/docker/docker/tag"
+	"github.com/docker/docker/reference"
 )
 
 type graphIDRegistrar interface {
@@ -29,8 +28,7 @@ type graphIDRegistrar interface {
 }
 
 type graphIDMounter interface {
-	MountByGraphID(string, string, layer.ChainID) (layer.RWLayer, error)
-	Unmount(string) error
+	CreateRWLayerByGraphID(string, string, layer.ChainID) error
 }
 
 type checksumCalculator interface {
@@ -57,7 +55,7 @@ var (
 
 // Migrate takes an old graph directory and transforms the metadata into the
 // new format.
-func Migrate(root, driverName string, ls layer.Store, is image.Store, ts tag.Store, ms metadata.Store) error {
+func Migrate(root, driverName string, ls layer.Store, is image.Store, rs reference.Store, ms metadata.Store) error {
 	graphDir := filepath.Join(root, graphDirName)
 	if _, err := os.Lstat(graphDir); os.IsNotExist(err) {
 		return nil
@@ -89,20 +87,24 @@ func Migrate(root, driverName string, ls layer.Store, is image.Store, ts tag.Sto
 		return err
 	}
 
-	if err := migrateTags(root, driverName, ts, mappings); err != nil {
+	if err := migrateRefs(root, driverName, rs, mappings); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// CalculateLayerChecksums walks an old graph directory and calculates checksums
+// for each layer. These checksums are later used for migration.
 func CalculateLayerChecksums(root string, ls checksumCalculator, mappings map[string]image.ID) {
 	graphDir := filepath.Join(root, graphDirName)
-	workQueue := make(chan string, runtime.NumCPU()*3)
+	// spawn some extra workers also for maximum performance because the process is bounded by both cpu and io
+	workers := runtime.NumCPU() * 3
+	workQueue := make(chan string, workers)
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < runtime.NumCPU()*3; i++ {
+	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
 			for id := range workQueue {
@@ -154,7 +156,7 @@ func calculateLayerChecksum(graphDir, id string, ls checksumCalculator) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(graphDir, id, migrationSizeFileName), []byte(fmt.Sprintf("%d", size)), 0600); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(graphDir, id, migrationSizeFileName), []byte(strconv.Itoa(int(size))), 0600); err != nil {
 		return err
 	}
 
@@ -275,13 +277,7 @@ func migrateContainers(root string, ls graphIDMounter, is image.Store, imageMapp
 			return err
 		}
 
-		_, err = ls.MountByGraphID(id, id, img.RootFS.ChainID())
-		if err != nil {
-			return err
-		}
-
-		err = ls.Unmount(id)
-		if err != nil {
+		if err := ls.CreateRWLayerByGraphID(id, id, img.RootFS.ChainID()); err != nil {
 			return err
 		}
 
@@ -291,12 +287,12 @@ func migrateContainers(root string, ls graphIDMounter, is image.Store, imageMapp
 	return nil
 }
 
-type tagAdder interface {
+type refAdder interface {
 	AddTag(ref reference.Named, id image.ID, force bool) error
 	AddDigest(ref reference.Canonical, id image.ID, force bool) error
 }
 
-func migrateTags(root, driverName string, ts tagAdder, mappings map[string]image.ID) error {
+func migrateRefs(root, driverName string, rs refAdder, mappings map[string]image.ID) error {
 	migrationFile := filepath.Join(root, migrationTagsFileName)
 	if _, err := os.Lstat(migrationFile); !os.IsNotExist(err) {
 		return err
@@ -334,7 +330,7 @@ func migrateTags(root, driverName string, ts tagAdder, mappings map[string]image
 						logrus.Errorf("migrate tags: invalid digest %q, %q", dgst, err)
 						continue
 					}
-					if err := ts.AddDigest(canonical, strongID, false); err != nil {
+					if err := rs.AddDigest(canonical, strongID, false); err != nil {
 						logrus.Errorf("can't migrate digest %q for %q, err: %q", ref.String(), strongID, err)
 					}
 				} else {
@@ -343,7 +339,7 @@ func migrateTags(root, driverName string, ts tagAdder, mappings map[string]image
 						logrus.Errorf("migrate tags: invalid tag %q, %q", tag, err)
 						continue
 					}
-					if err := ts.AddTag(tagRef, strongID, false); err != nil {
+					if err := rs.AddTag(tagRef, strongID, false); err != nil {
 						logrus.Errorf("can't migrate tag %q for %q, err: %q", ref.String(), strongID, err)
 					}
 				}

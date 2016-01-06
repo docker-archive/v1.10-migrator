@@ -78,7 +78,7 @@ func (c *devicemapper) umount(id string) {
 	defer c.Unlock()
 	c.mounts[id].activity--
 	if c.mounts[id].activity == 0 {
-		err := c.devices.UnmountDevice(id)
+		err := c.devices.UnmountDevice(id, c.mounts[id].path)
 		if err != nil {
 			logrus.Errorf("Can't umount %s: %v", id, err)
 		}

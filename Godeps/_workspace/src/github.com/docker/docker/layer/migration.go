@@ -13,30 +13,33 @@ import (
 	"github.com/vbatts/tar-split/tar/storage"
 )
 
-func (ls *layerStore) MountByGraphID(name string, graphID string, parent ChainID) (l RWLayer, err error) {
+// CreateRWLayerByGraphID creates a RWLayer in the layer store using
+// the provided name with the given graphID. To get the RWLayer
+// after migration the layer may be retrieved by the given name.
+func (ls *layerStore) CreateRWLayerByGraphID(name string, graphID string, parent ChainID) (err error) {
 	ls.mountL.Lock()
 	defer ls.mountL.Unlock()
 	m, ok := ls.mounts[name]
 	if ok {
 		if m.parent.chainID != parent {
-			return nil, errors.New("name conflict, mismatched parent")
+			return errors.New("name conflict, mismatched parent")
 		}
 		if m.mountID != graphID {
-			return nil, errors.New("mount already exists")
+			return errors.New("mount already exists")
 		}
 
-		return m, nil
+		return nil
 	}
 
 	if !ls.driver.Exists(graphID) {
-		return nil, errors.New("graph ID does not exist")
+		return errors.New("graph ID does not exist")
 	}
 
 	var p *roLayer
 	if string(parent) != "" {
 		p = ls.get(parent)
 		if p == nil {
-			return nil, ErrLayerDoesNotExist
+			return ErrLayerDoesNotExist
 		}
 
 		// Release parent chain if error
@@ -56,6 +59,7 @@ func (ls *layerStore) MountByGraphID(name string, graphID string, parent ChainID
 		parent:     p,
 		mountID:    graphID,
 		layerStore: ls,
+		references: map[RWLayer]*referencedRWLayer{},
 	}
 
 	// Check for existing init layer
@@ -65,19 +69,13 @@ func (ls *layerStore) MountByGraphID(name string, graphID string, parent ChainID
 	}
 
 	if err = ls.saveMount(m); err != nil {
-		return nil, err
+		return err
 	}
 
-	// TODO: provide a mount label
-	if err = ls.mount(m, ""); err != nil {
-		return nil, err
-	}
-
-	return m, nil
+	return nil
 }
 
 func (ls *layerStore) ChecksumForGraphID(id, parent, oldTarDataPath, newTarDataPath string) (diffID DiffID, size int64, err error) {
-	var tarDataFile *os.File
 	defer func() {
 		if err != nil {
 			logrus.Debugf("could not get checksum for %q with tar-split: %q", id, err)
@@ -90,7 +88,7 @@ func (ls *layerStore) ChecksumForGraphID(id, parent, oldTarDataPath, newTarDataP
 		return
 	}
 
-	tarDataFile, err = os.Open(oldTarDataPath)
+	tarDataFile, err := os.Open(oldTarDataPath)
 	if err != nil {
 		return
 	}
@@ -107,7 +105,10 @@ func (ls *layerStore) ChecksumForGraphID(id, parent, oldTarDataPath, newTarDataP
 	}
 
 	diffID = DiffID(dgst.Digest())
-	os.RemoveAll(newTarDataPath)
+	err = os.RemoveAll(newTarDataPath)
+	if err != nil {
+		return
+	}
 	err = os.Link(oldTarDataPath, newTarDataPath)
 
 	return
@@ -208,6 +209,7 @@ func (ls *layerStore) RegisterByGraphID(graphID string, parent ChainID, diffID D
 	if err != nil {
 		return nil, err
 	}
+	defer tdf.Close()
 	_, err = io.Copy(tsw, tdf)
 	if err != nil {
 		return nil, err
