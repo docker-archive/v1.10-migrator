@@ -65,6 +65,8 @@ run_daemon
 bats /pre-tests.bats
 [ $? -eq 0 ] || die
 
+[ "$DOCKER_MIGRATE_METHOD" == "tool" ] && (docker-1.10-migrator || exit 2)
+
 close_daemon
 
 daemon_flag="daemon"

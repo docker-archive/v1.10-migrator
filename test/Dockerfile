@@ -9,4 +9,5 @@ run cd /usr/local/src/ \
 
 volume /var/lib/docker
 add entrypoint.sh pre-tests.bats post-tests.bats /
+add docker-1.10-migrator /usr/bin/
 entrypoint /entrypoint.sh
