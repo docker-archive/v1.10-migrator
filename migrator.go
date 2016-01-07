@@ -21,6 +21,7 @@ var drivers = map[string]mounterFunc{
 	"overlay":      NewOverlayChecksums,
 	"btrfs":        NewBtrfsChecksums,
 	"devicemapper": NewDevicemapperChecksums,
+	"vfs":          NewVfsChecksums,
 }
 
 func main() {
