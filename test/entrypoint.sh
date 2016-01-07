@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
 
 die() {
-  tail -n 50 /docker.log
-  exit 1
+	tail -n 50 /docker.log
+	exit 1
 }
 
 install_docker() {
-  wget -O /usr/bin/docker "$1"
-  chmod +x /usr/bin/docker
+	wget -O /usr/bin/docker "$1"
+	chmod +x /usr/bin/docker
 }
 
 verlte() {
-  [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+	[ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
 }
 
 run_daemon() {
-  ( set -x; exec \
-  	docker "$daemon_flag" --debug \
-  	--storage-driver "$DOCKER_STORAGE_DRIVER" \
-  	--pidfile "/docker.pid" \
-  		&> /docker.log
-  ) &
+	( set -x; exec \
+		docker "$daemon_flag" --debug \
+		--storage-driver "$DOCKER_STORAGE_DRIVER" \
+		--pidfile "/docker.pid" \
+			&> /docker.log
+	) &
 }
 
 cleanup_daemon() {
 	trap - EXIT
 	close_daemon
-  [ "$DOCKER_STORAGE_DRIVER" == "btrfs" ] && cleanup_btrfs
+	[ "$DOCKER_STORAGE_DRIVER" == "btrfs" ] && cleanup_btrfs
 }
 
 close_daemon() {
@@ -38,15 +38,15 @@ close_daemon() {
 }
 
 setup_btrfs() {
-  truncate -s 1G /var/lib/docker/btrfs.img
-  loopdev=$(losetup -f --show /var/lib/docker/btrfs.img)
-  mkfs.btrfs "$loopdev"
-  mount "$loopdev" /var/lib/docker
+	truncate -s 1G /var/lib/docker/btrfs.img
+	loopdev=$(losetup -f --show /var/lib/docker/btrfs.img)
+	mkfs.btrfs "$loopdev"
+	mount "$loopdev" /var/lib/docker
 }
 
 cleanup_btrfs() {
-  umount "$loopdev"
-  losetup -d "$loopdev"
+	umount "$loopdev"
+	losetup -d "$loopdev"
 }
 
 set -x
