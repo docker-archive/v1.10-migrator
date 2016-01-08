@@ -6,6 +6,6 @@ run cd /usr/local/lvm2 \
 	&& make device-mapper \
 	&& make install_device-mapper
 
-env GOPATH=/go:/go/src/github.com/docker/docker-1.10-migrator/Godeps/_workspace
-copy . /go/src/github.com/docker/docker-1.10-migrator
-run go install -tags libdm_no_deferred_remove --ldflags '-extldflags "-static"' github.com/docker/docker-1.10-migrator
+env GOPATH=/go:/go/src/github.com/docker/docker-v1.10-migrator/Godeps/_workspace
+copy . /go/src/github.com/docker/docker-v1.10-migrator
+run go install -tags libdm_no_deferred_remove --ldflags '-extldflags "-static"' github.com/docker/docker-v1.10-migrator

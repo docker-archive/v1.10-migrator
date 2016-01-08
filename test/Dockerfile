@@ -8,6 +8,6 @@ run cd /usr/local/src/ \
     && ./install.sh /usr/local
 
 volume /var/lib/docker
-add entrypoint.sh pre-tests.bats post-tests.bats /
-add docker-1.10-migrator /usr/bin/
+add pre-tests.bats entrypoint.sh  post-tests.bats /
+add docker-v1.10-migrator /usr/bin/
 entrypoint /entrypoint.sh

@@ -65,7 +65,13 @@ run_daemon
 bats /pre-tests.bats
 [ $? -eq 0 ] || die
 
-[ "$DOCKER_MIGRATE_METHOD" == "tool" ] && (docker-1.10-migrator || exit 2)
+[ "$DOCKER_STORAGE_DRIVER" == "devicemapper" ] && docker_run_privileged="--privileged"
+
+[ "$DOCKER_MIGRATE_METHOD" == "tool" ] && (docker-v1.10-migrator || exit 2);
+[ "$DOCKER_MIGRATE_METHOD" == "image" ] && (
+	docker load -i /docker-v1.10-migrator.tar; \
+	docker run --rm -v /var/lib/docker:/var/lib/docker $docker_run_privileged docker-v1.10-migrator || die
+)
 
 close_daemon
 
