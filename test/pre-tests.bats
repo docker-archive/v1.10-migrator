@@ -33,3 +33,24 @@ verlte $DOCKER_START_VERSION "1.8.2" && mode="legacy"
 	[ "$mode" = "legacy" ] || [ "$output" = "607fa964666c0c08359190cb8bb6960caf678be78f45f41390e858719ce369c9" ]
 	[ "$mode" = "normal" ] || [ "$output" = "a6dbc8d6ddbb9e905518a9df65f414efce038de5f253a081b1205c6cea4bac17" ]
 }
+
+
+@test "pull redis:2.8.23" {
+	run docker pull redis:2.8.23
+	[ "$status" -eq 0 ]
+}
+
+@test "validate redis:2.8.23" {
+	run docker inspect -f {{.Id}} redis:2.8.23
+	echo "id: $output"
+	[ "$status" -eq 0 ]
+	[ "$mode" = "legacy" ] || [ "$output" = "ce0116e4e7f549950db2e8ae2a306038153b3a2ad818de9c144323a751dd7922" ]
+	[ "$mode" = "normal" ] || [ "$output" = "ed9d85fcbf198b985f57287e2ce0285d3a5403ae396e1fee7d8dea325560a0ec" ]
+}
+
+@test "validate redis:2.8.23 layers" {
+	output=$(docker history redis:2.8.23 | awk '{print $(NF-1)}' | tr '\n' ' ')
+	echo "id: -$output-"
+	[ "$output" = "SIZE 0 0 0 109 0 0 0 8.737 0 0 0 2.699 125.8 14.02 330.4 0 125.1 " ]
+}
+
