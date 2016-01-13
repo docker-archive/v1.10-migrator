@@ -15,4 +15,4 @@ Usage of v1.10-migrator:
     	Storage driver to migrate (default "auto")
 ```
 
-Supported storage drivers are `aufs`, `overlay` and `devicemapper`. `auto` tries to automatically detect the driver from the root directory. `btrfs` and `zfs` are currently not supported.
+Supported storage drivers are `aufs`, `overlay`, `btrfs` and `devicemapper`. `auto` tries to automatically detect the driver from the root directory. `zfs` is currently not supported.
