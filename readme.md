@@ -1,4 +1,4 @@
-### docker-v1.10-migrator
+### docker/v1.10-migrator
 
 Starting from `v1.10` docker uses content addressable IDs for the images and layers instead of using generated ones. This tool calculates SHA256 checksums for docker layer content, so that they don't need to be recalculated when the daemon starts for the first time.
 
@@ -7,8 +7,8 @@ The migration usually runs on daemon startup but it can be quite slow(usually 10
 #### Usage
 
 ```
-docker-v1.10-migrator --help
-Usage of docker-v1.10-migrator:
+v1.10-migrator --help
+Usage of v1.10-migrator:
   -g string
     	Docker root dir (default "/var/lib/docker")
   -s string

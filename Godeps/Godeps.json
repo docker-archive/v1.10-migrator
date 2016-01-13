@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/tonistiigi/docker-v1.10-migrator",
+	"ImportPath": "github.com/docker/v1.10-migrator",
 	"GoVersion": "go1.5",
 	"Deps": [
 		{
