@@ -1,3 +1,3 @@
 from busybox
-add v1.10-migrator /usr/bin
-entrypoint /usr/bin/v1.10-migrator
+add v1.10-migrator /bin
+entrypoint /bin/v1.10-migrator
