@@ -42,3 +42,12 @@
 	echo "id: -$output-"
 	[ "$output" = "SIZE 0 0 0 109 0 0 0 8.737 0 0 0 2.699 125.8 14.02 330.4 0 125.1 " ]
 }
+
+@test "validate built foobar:latest" {
+	output=$(docker run --rm foobar:latest ls -l /baz | awk '{print $1" "$3" "$4" "$5" "$9}')
+	[ "$output" = "-rw-r--r-- root root 4 /baz" ]
+	output=$(docker run --rm foobar:latest ls -l /bax | awk '{print $1" "$3" "$4" "$5" "$9}')
+	[ "$output" = "-rw-r--r-- root root 0 /bax" ]
+	output=$(docker run --rm foobar:latest sh -c "[ ! -f aufs.go ] && echo missing")
+	[ "$output" = "missing" ]
+}

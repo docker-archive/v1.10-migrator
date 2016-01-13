@@ -54,3 +54,27 @@ verlte $DOCKER_START_VERSION "1.8.2" && mode="legacy"
 	[ "$output" = "SIZE 0 0 0 109 0 0 0 8.737 0 0 0 2.699 125.8 14.02 330.4 0 125.1 " ]
 }
 
+@test "build image foobar:latest" {
+	cd $(mktemp -d)
+	echo "hello-world" > hello
+	echo "foo" > bar
+	cat <<EOT > Dockerfile
+	from busybox:1.24.1
+	add hello /
+	run touch /bax
+	run rm hello
+	add bar /baz
+EOT
+	run docker build -t foobar:latest .
+	[ "$status" -eq 0 ]
+}
+
+@test "validate built foobar:latest" {
+	output=$(docker run --rm foobar:latest ls -l /baz | awk '{print $1" "$3" "$4" "$5" "$9}')
+	[ "$output" = "-rw-r--r-- root root 4 /baz" ]
+	output=$(docker run --rm foobar:latest ls -l /bax | awk '{print $1" "$3" "$4" "$5" "$9}')
+	[ "$output" = "-rw-r--r-- root root 0 /bax" ]
+	output=$(docker run --rm foobar:latest sh -c "[ ! -f aufs.go ] && echo missing")
+	[ "$output" = "missing" ]
+}
+
