@@ -1,4 +1,4 @@
-from golang:1.5.2
+from golang:1.5.3
 run apt-get update && apt-get install -y build-essential
 run git clone -b v2_02_103 https://git.fedorahosted.org/git/lvm2.git /usr/local/lvm2
 run cd /usr/local/lvm2 \
