@@ -75,7 +75,7 @@ func findDriver(root string) (string, error) {
 		return "", fmt.Errorf("no storage driver directory was found at %s", root)
 	}
 	if len(found) > 1 {
-		return "", fmt.Errorf("multiple storage drivers found at %s, please specify one with \"-d\" option", root)
+		return "", fmt.Errorf("multiple storage drivers found at %s, please specify one with \"-s\" option", root)
 	}
 	return found[0], nil
 }
