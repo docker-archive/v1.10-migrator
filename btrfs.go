@@ -12,7 +12,7 @@ type btrfs struct {
 	root string
 }
 
-func NewBtrfsChecksums(root string) Mounter {
+func NewBtrfsChecksums(root string, opts []string) Mounter {
 	return &btrfs{root}
 }
 

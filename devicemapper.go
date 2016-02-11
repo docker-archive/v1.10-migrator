@@ -26,8 +26,8 @@ type devicemapper struct {
 	devices *devmapper.DeviceSet
 }
 
-func NewDevicemapperChecksums(root string) Mounter {
-	devices, err := devmapper.NewDeviceSet(root, false, nil, nil, nil)
+func NewDevicemapperChecksums(root string, opts []string) Mounter {
+	devices, err := devmapper.NewDeviceSet(root, false, opts, nil, nil)
 	if err != nil {
 		logrus.Errorf("Can't initialize device mapper: %q", err)
 		os.Exit(1)

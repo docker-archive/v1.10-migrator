@@ -12,7 +12,7 @@ type overlay struct {
 	root string
 }
 
-func NewOverlayChecksums(root string) Mounter {
+func NewOverlayChecksums(root string, opts []string) Mounter {
 	return &overlay{root}
 }
 
