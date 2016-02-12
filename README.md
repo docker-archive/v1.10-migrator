@@ -9,10 +9,9 @@ The migration usually runs on daemon startup but it can be quite slow(usually 10
 ```
 v1.10-migrator --help
 Usage of v1.10-migrator:
-  -g string
-    	Docker root dir (default "/var/lib/docker")
-  -s string
-    	Storage driver to migrate (default "auto")
+  -g, --graph string            Docker root dir (default "/var/lib/docker")
+  -s, --storage-driver string   Storage driver to migrate (default "auto")
+      --storage-opt value       Set storage driver option (default [])
 ```
 
 Supported storage drivers are `aufs`, `overlay`, `btrfs` and `devicemapper`. `auto` tries to automatically detect the driver from the root directory. `zfs` is currently not supported.
