@@ -12,7 +12,7 @@ type vfs struct {
 	root string
 }
 
-func NewVfsChecksums(root string) Mounter {
+func NewVfsChecksums(root string, opts []string) Mounter {
 	return &vfs{root}
 }
 

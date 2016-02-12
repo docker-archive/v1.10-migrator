@@ -12,7 +12,7 @@ type aufs struct {
 	root string
 }
 
-func NewAufsChecksums(root string) Mounter {
+func NewAufsChecksums(root string, opts []string) Mounter {
 	return &aufs{root}
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +9,12 @@ import (
 	"github.com/docker/docker/image"
 
 	migrate "github.com/docker/docker/migrate/v1"
+	flag "github.com/spf13/pflag"
 )
 
 const autoDriver = "auto"
 
-type mounterFunc func(string) Mounter
+type mounterFunc func(string, []string) Mounter
 
 var drivers = map[string]mounterFunc{
 	"aufs":         NewAufsChecksums,
@@ -25,8 +25,9 @@ var drivers = map[string]mounterFunc{
 }
 
 func main() {
-	root := flag.String("g", "/var/lib/docker", "Docker root dir")
-	driver := flag.String("s", autoDriver, "Storage driver to migrate")
+	root := flag.StringP("graph", "g", "/var/lib/docker", "Docker root dir")
+	driver := flag.StringP("storage-driver", "s", autoDriver, "Storage driver to migrate")
+	opts := flag.StringSlice("storage-opt", nil, "Set storage driver option")
 
 	flag.Parse()
 	logrus.SetLevel(logrus.DebugLevel)
@@ -35,7 +36,7 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	mounter := drivers[driverName](filepath.Join(*root, driverName))
+	mounter := drivers[driverName](filepath.Join(*root, driverName), *opts)
 	migrate.CalculateLayerChecksums(*root, &checksums{mounter}, make(map[string]image.ID))
 
 }

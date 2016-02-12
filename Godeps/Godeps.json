@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/docker/v1.10-migrator",
 	"GoVersion": "go1.5",
+	"Packages": [
+		"github.com/docker/v1.10-migrator"
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
@@ -196,6 +199,10 @@
 			"ImportPath": "github.com/opencontainers/runc/libcontainer/user",
 			"Comment": "v0.0.6-19-gd97d5e8",
 			"Rev": "d97d5e8b007e4657316eed76ea30bc0f690230cf"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "7f60f83a2c81bc3c3c0d5297f61ddfa68da9d3b7"
 		},
 		{
 			"ImportPath": "github.com/vbatts/tar-split/archive/tar",
