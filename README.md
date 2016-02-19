@@ -14,7 +14,7 @@ Usage of v1.10-migrator:
       --storage-opt value       Set storage driver option (default [])
 ```
 
-Supported storage drivers are `aufs`, `overlay`, `btrfs` and `devicemapper`. `auto` tries to automatically detect the driver from the root directory. `zfs` is currently not supported.
+Supported storage drivers are `aufs`, `overlay`, `btrfs`, `vfs` and `devicemapper`. `auto` tries to automatically detect the driver from the root directory. `zfs` is currently not supported.
 
 ### Copyright and license
 
