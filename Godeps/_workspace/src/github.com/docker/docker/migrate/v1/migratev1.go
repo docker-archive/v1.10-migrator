@@ -160,7 +160,12 @@ func calculateLayerChecksum(graphDir, id string, ls checksumCalculator) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(graphDir, id, migrationDiffIDFileName), []byte(diffID), 0600); err != nil {
+	tmpFile := filepath.Join(graphDir, id, migrationDiffIDFileName+".tmp")
+	if err := ioutil.WriteFile(tmpFile, []byte(diffID), 0600); err != nil {
+		return err
+	}
+
+	if err := os.Rename(tmpFile, filepath.Join(graphDir, id, migrationDiffIDFileName)); err != nil {
 		return err
 	}
 
@@ -238,12 +243,14 @@ func migrateContainers(root string, ls graphIDMounter, is image.Store, imageMapp
 
 		containerJSON, err := ioutil.ReadFile(filepath.Join(containersDir, id, configFileNameLegacy))
 		if err != nil {
-			return err
+			logrus.Errorf("migrate container error: %v", err)
+			continue
 		}
 
 		var c map[string]*json.RawMessage
 		if err := json.Unmarshal(containerJSON, &c); err != nil {
-			return err
+			logrus.Errorf("migrate container error: %v", err)
+			continue
 		}
 
 		imageStrJSON, ok := c["Image"]
@@ -253,8 +260,10 @@ func migrateContainers(root string, ls graphIDMounter, is image.Store, imageMapp
 
 		var image string
 		if err := json.Unmarshal([]byte(*imageStrJSON), &image); err != nil {
-			return err
+			logrus.Errorf("migrate container error: %v", err)
+			continue
 		}
+
 		imageID, ok := imageMappings[image]
 		if !ok {
 			logrus.Errorf("image not migrated %v", imageID) // non-fatal error
@@ -278,7 +287,8 @@ func migrateContainers(root string, ls graphIDMounter, is image.Store, imageMapp
 		}
 
 		if err := ls.CreateRWLayerByGraphID(id, id, img.RootFS.ChainID()); err != nil {
-			return err
+			logrus.Errorf("migrate container error: %v", err)
+			continue
 		}
 
 		logrus.Infof("migrated container %s to point to %s", id, imageID)
@@ -418,7 +428,11 @@ func migrateImage(id, root string, ls graphIDRegistrar, is image.Store, ms metad
 		history = parentImg.History
 	}
 
-	diffID, err := ioutil.ReadFile(filepath.Join(root, graphDirName, id, migrationDiffIDFileName))
+	diffIDData, err := ioutil.ReadFile(filepath.Join(root, graphDirName, id, migrationDiffIDFileName))
+	if err != nil {
+		return err
+	}
+	diffID, err := digest.ParseDigest(string(diffIDData))
 	if err != nil {
 		return err
 	}
@@ -472,8 +486,8 @@ func migrateImage(id, root string, ls graphIDRegistrar, is image.Store, ms metad
 	if err == nil { // best effort
 		dgst, err := digest.ParseDigest(string(checksum))
 		if err == nil {
-			blobSumService := metadata.NewBlobSumService(ms)
-			blobSumService.Add(layer.DiffID(), dgst)
+			V2MetadataService := metadata.NewV2MetadataService(ms)
+			V2MetadataService.Add(layer.DiffID(), metadata.V2Metadata{Digest: dgst})
 		}
 	}
 	_, err = ls.Release(layer)
