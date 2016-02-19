@@ -89,6 +89,7 @@ func (c *checksums) checksumForGraphIDNoTarsplit(id, parent, newTarDataPath stri
 	}
 	defer f.Close()
 	mfz := gzip.NewWriter(f)
+	defer mfz.Close()
 	metaPacker := storage.NewJSONPacker(mfz)
 
 	packerCounter := &packSizeCounter{metaPacker, &size}
