@@ -17,8 +17,8 @@ verlte $DOCKER_START_VERSION "1.8.2" && mode="legacy"
 	run docker inspect -f {{.Id}} busybox:1.24.1
 	echo "id: $output"
 	[ "$status" -eq 0 ]
-	[ "$mode" = "legacy" ] || [ "$output" = "ac6a7980c6c2fb4d29e406efb4f9784b3c67e161eb68a97ffb428d07e3e97693" ]
-	[ "$mode" = "normal" ] || [ "$output" = "fc0db02f30724abc777d7ae2b2404c6d074f1e2ceca19912352aea30a42f50b7" ]
+	[ "$mode" = "legacy" ] || [ "$output" = "65e4158d96256e032299e07ac28308d644c0e81d52b18dcb08847a5027b4f107" ]
+	[ "$mode" = "normal" ] || [ "$output" = "fef924a0204a00b3ec67318e2ed337b189c99ea19e2bf10ed30a13b87c5e17ab" ]
 }
 
 @test "pull busybox:1.21.0-ubuntu" {
@@ -44,14 +44,14 @@ verlte $DOCKER_START_VERSION "1.8.2" && mode="legacy"
 	run docker inspect -f {{.Id}} redis:2.8.23
 	echo "id: $output"
 	[ "$status" -eq 0 ]
-	[ "$mode" = "legacy" ] || [ "$output" = "ce0116e4e7f549950db2e8ae2a306038153b3a2ad818de9c144323a751dd7922" ]
-	[ "$mode" = "normal" ] || [ "$output" = "ed9d85fcbf198b985f57287e2ce0285d3a5403ae396e1fee7d8dea325560a0ec" ]
+	[ "$mode" = "legacy" ] || [ "$output" = "1fc904471127c4c91e4e97e145ec5c7a90b3b0425330f7b95683bcd4ac4f6a11" ]
+	[ "$mode" = "normal" ] || [ "$output" = "1d6bbba6a3fd57eb015daaf6244787dee6aff18ece030f8b8f52a2ee0a4c19e6" ]
 }
 
 @test "validate redis:2.8.23 layers" {
 	output=$(docker history redis:2.8.23 | awk '{print $(NF-1)}' | tr '\n' ' ')
 	echo "id: -$output-"
-	[ "$output" = "SIZE 0 0 0 109 0 0 0 8.737 0 0 0 2.699 125.8 14.02 330.4 0 125.1 " ]
+	[ "$output" = "SIZE 0 0 0 109 0 0 0 8.741 0 0 0 2.699 125.8 14.04 330.4 0 125.1 " ]
 }
 
 @test "build image foobar:latest" {
