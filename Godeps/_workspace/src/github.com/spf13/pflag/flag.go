@@ -106,6 +106,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // ErrHelp is the error returned if the flag -help is invoked but no such flag is defined.
@@ -743,7 +745,10 @@ func (f *FlagSet) parseLongArg(s string, args []string) (a []string, err error) 
 			f.usage()
 			return a, ErrHelp
 		}
-		err = f.failf("unknown flag: --%s", name)
+		// Don't set an error here, just output a warning.
+		log.WithFields(log.Fields{
+			"flag": name,
+		}).Warn("ignoring unknown long flag")
 		return
 	}
 	var value string
@@ -778,8 +783,11 @@ func (f *FlagSet) parseSingleShortArg(shorthands string, args []string) (outShor
 			err = ErrHelp
 			return
 		}
-		//TODO continue on error
-		err = f.failf("unknown shorthand flag: %q in -%s", c, shorthands)
+		// Don't set an error here, just output a warning.
+		log.WithFields(log.Fields{
+			"flag": string(c),
+			"argv": shorthands,
+		}).Warn("ignoring unknown shorthand flag")
 		return
 	}
 	var value string
