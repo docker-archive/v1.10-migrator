@@ -1,10 +1,16 @@
 {
 	"ImportPath": "github.com/docker/v1.10-migrator",
 	"GoVersion": "go1.5",
+	"GodepVersion": "v74",
 	"Packages": [
 		"github.com/docker/v1.10-migrator"
 	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/Microsoft/go-winio",
+			"Comment": "v0.3.5-2-gce2922f",
+			"Rev": "ce2922f643c8fd76b46cadc7f404a06282678b34"
+		},
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
 			"Comment": "v0.8.7-53-g446d1c1",
@@ -26,12 +32,22 @@
 			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
 		},
 		{
+			"ImportPath": "github.com/docker/docker/daemon/graphdriver/devmapper",
+			"Comment": "v1.4.1-10254-g7068722",
+			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
+		},
+		{
 			"ImportPath": "github.com/docker/docker/distribution/metadata",
 			"Comment": "v1.4.1-10254-g7068722",
 			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
 		},
 		{
 			"ImportPath": "github.com/docker/docker/image",
+			"Comment": "v1.4.1-10254-g7068722",
+			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
+		},
+		{
+			"ImportPath": "github.com/docker/docker/image/v1",
 			"Comment": "v1.4.1-10254-g7068722",
 			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
 		},
@@ -131,11 +147,6 @@
 			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
 		},
 		{
-			"ImportPath": "github.com/docker/docker/pkg/tarsum",
-			"Comment": "v1.4.1-10254-g7068722",
-			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
-		},
-		{
 			"ImportPath": "github.com/docker/docker/pkg/version",
 			"Comment": "v1.4.1-10254-g7068722",
 			"Rev": "70687226781545499c45414286a5b864bfc4eecd"
@@ -181,6 +192,11 @@
 			"Rev": "651fc226e7441360384da338d0fd37f2440ffbe3"
 		},
 		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-76-gc3e9588",
+			"Rev": "c3e9588849195eefa783417c3a53d092f6e93526"
+		},
+		{
 			"ImportPath": "github.com/opencontainers/runc/libcontainer/label",
 			"Comment": "v0.0.8-22-gce72f86",
 			"Rev": "ce72f86a2b54bc114d6ffb51f6500479b2d42154"
@@ -224,7 +240,15 @@
 			"Rev": "0cb26f788dd4625d1956c6fd97ffc4c90669d129"
 		},
 		{
+			"ImportPath": "golang.org/x/net/proxy",
+			"Rev": "0cb26f788dd4625d1956c6fd97ffc4c90669d129"
+		},
+		{
 			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "833a04a10549a95dc34458c195cbad61bbb6cb4d"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/windows",
 			"Rev": "833a04a10549a95dc34458c195cbad61bbb6cb4d"
 		}
 	]
