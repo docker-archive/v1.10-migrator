@@ -38,7 +38,9 @@ func main() {
 	}
 	mounter := drivers[driverName](filepath.Join(*root, driverName), *opts)
 	migrate.CalculateLayerChecksums(*root, &checksums{mounter}, make(map[string]image.ID))
-
+	if err := migrateLinks(*root); err != nil {
+		logrus.Fatal(err)
+	}
 }
 
 func validateGraphDir(root, driver string) (string, error) {
